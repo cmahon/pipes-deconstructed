@@ -44,11 +44,11 @@ consumer' = Request () (\v -> M (print v >> return consumer))
 producer'' :: Proxy X () () Int IO ()
 producer'' 
 
-  -- = (yield 1 >> yield 1)
+  -- = yield 1 >> yield 1
   
-  -- = (yield 1 >>= \_ -> yield 1)
+  -- = yield 1 >>= \_ -> yield 1
   
-  -- = Respond 1 Pure >> Respond 1 Pure
+  -- = Respond 1 Pure >>= \_ ->  Respond 1 Pure
   
   -- = Respond 1 (\v -> Pure v >>= \_ -> Respond 2 Pure)
   
@@ -83,41 +83,51 @@ effect'
 effect'' :: Effect IO ()
 effect''
 
-  -- = producer >-> pipe' >-> consumer'
+  -- = producer'' >-> pipe' >-> consumer'
 
   = Respond 1 (\v -> Pure v >>= \_ -> Respond 2 (\v' -> Pure v'))
-        >-> (Request () (\v -> Respond (v+3) (\() -> pipe')))
-            >-> (Request () (\v -> M (print v >> return consumer')))
+      >-> (Request () (\v -> Respond (v+3) (\() -> pipe'))
+          >-> Request () (\v -> M (print v >> return consumer')))
+
+  -- Expand (>->) to (+>>)
 
   -- = (\() -> Respond 1 (\v -> Pure v >>= \_ -> Respond 2 (\v' -> Pure v')))
   --   +>> (\() -> Request () (\v -> Respond (v+3) (\() -> pipe')))
   --       +>> (Request () (\v -> M (print v >> return consumer'))) 
   
+  -- Apply consumer' request to pipe'
+
   -- = (\() -> Respond 1 (\v -> Pure v >>= \_ -> Respond 2 (\v' -> Pure v')))
   --   +>> (Request () (\v -> Respond (v+3) (\() -> pipe')))
   --       >>~ (\v -> M (print v >> return consumer'))
 
-  -- = (\() -> Respond 1 (\v -> Pure v >>= \_ -> Respond 2 (\v' -> Pure v')))
-  --   >>~ (\v -> Respond (v+3) (\() -> pipe'))
-  --       >>~ (\v -> M (print v >> return consumer'))
+  -- Apply pipe' request to producer
 
   -- = (Respond 1 (\v -> Pure v >>= \_ -> Respond 2 (\v' -> Pure v')))
   --   >>~ (\v -> Respond (v+3) (\() -> pipe'))
   --       >>~ (\v -> M (print v >> return consumer'))
 
+  -- Apply producer response to pipe'
+
   -- = (\v -> Pure v >>= \_ -> Respond 2 (\v' -> Pure v'))
   --   +>> (Respond 4 (\() -> pipe'))
   --       >>~ (\v -> M (print v >> return consumer'))
+
+  -- Apply pipe' response to consumer'
 
   -- = (\v -> Pure v >>= \_ -> Respond 2 (\v' -> Pure v'))
   --   +>> (\() -> pipe')
   --       +>> (M (print 4 >> return consumer'))
 
+  -- Add pipe' to contination returned by base monad print action
+
   -- = (\v -> Pure v >>= \_ -> Respond 2 (\v' -> Pure v'))
   --       +>> (M ((print 4 >> return consumer') 
   --           >>= (\p' -> return ((\() -> pipe') +>> p'))))        
 
-  -- = M ((print (4::Int) >> return consumer') 
+  -- Add producer to contination returned by base monad print action
+
+  -- = M ((print 4 >> return consumer') 
   --     >>= (\p' -> return ((\v -> Pure v >>= \_ -> Respond 2 (\v' -> Pure v')) 
   --         +>> (\() -> pipe') +>> p')))
 
