@@ -85,9 +85,9 @@ effect''
 
   -- = producer >-> pipe' >-> consumer'
 
-  -- = (\() -> Respond 1 (\v -> Pure v >>= \_ -> Respond 2 (\v' -> Pure v')))
-  --     >-> (Request () (\v -> Respond (v+3) (\() -> pipe'))
-  --         >-> Request () (\v -> M (print v >> return consumer')))
+  = Respond 1 (\v -> Pure v >>= \_ -> Respond 2 (\v' -> Pure v'))
+        >-> (Request () (\v -> Respond (v+3) (\() -> pipe')))
+            >-> (Request () (\v -> M (print v >> return consumer')))
 
   -- = (\() -> Respond 1 (\v -> Pure v >>= \_ -> Respond 2 (\v' -> Pure v')))
   --   +>> (\() -> Request () (\v -> Respond (v+3) (\() -> pipe')))
@@ -117,9 +117,9 @@ effect''
   --       +>> (M ((print 4 >> return consumer') 
   --           >>= (\p' -> return ((\() -> pipe') +>> p'))))        
 
-  = M ((print (4::Int) >> return consumer') 
-      >>= (\p' -> return ((\v -> Pure v >>= \_ -> Respond 2 (\v' -> Pure v')) 
-          +>> (\() -> pipe') +>> p')))
+  -- = M ((print (4::Int) >> return consumer') 
+  --     >>= (\p' -> return ((\v -> Pure v >>= \_ -> Respond 2 (\v' -> Pure v')) 
+  --         +>> (\() -> pipe') +>> p')))
 
 -----------------------------------------------------------------------------
 
