@@ -117,9 +117,9 @@ effect''
   --       +>> (M ((print 4 >> return consumer') 
   --           >>= (\p' -> return ((\() -> pipe') +>> p'))))        
 
-  = (M ((print (4::Int) >> return consumer') 
+  = M ((print (4::Int) >> return consumer') 
       >>= (\p' -> return ((\v -> Pure v >>= \_ -> Respond 2 (\v' -> Pure v')) 
-          +>> (\() -> pipe') +>> p'))))   
+          +>> (\() -> pipe') +>> p')))
 
 -----------------------------------------------------------------------------
 
