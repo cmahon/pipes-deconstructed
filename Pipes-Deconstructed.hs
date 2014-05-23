@@ -44,11 +44,11 @@ consumer' = Request () (\v -> M (print v >> return consumer))
 producer'' :: Proxy X () () Int IO ()
 producer'' 
 
-  -- = yield 1 >> yield 1
+  -- = yield 1 >> yield 2
   
-  -- = yield 1 >>= \_ -> yield 1
+  -- = yield 1 >>= \_ -> yield 2
   
-  -- = Respond 1 Pure >>= \_ ->  Respond 1 Pure
+  -- = Respond 1 Pure >>= \_ ->  Respond 2 Pure
   
   -- = Respond 1 (\v -> Pure v >>= \_ -> Respond 2 Pure)
   
