@@ -1,4 +1,1 @@
-pipes-deconstructed
-===================
-
-Code for pipes deconstructed blog post
+Code for [Pipes Deconstructed](http://cmahon.github.io/posts/pipes-deconstructed/) blog article.
